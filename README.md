@@ -2,7 +2,7 @@
  
 A full-stack beauty salon web application built with **Next.js** and **Supabase**. Clients can browse treatments, book appointments, and leave reviews — all with a polished editorial aesthetic inspired by luxury wellness brands.
  
-> Built for a real salon in Tbilisi, Georgia 📍
+
  
 ---
  ![Screenshot](./screenshot/heroNav.png)
