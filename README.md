@@ -71,42 +71,7 @@ Editorial page showing brand pillars + guest reviews with a submission form.
 | `is_approved` | bool (admin-set) |
 | `created_at` | timestamp |
 
----
 
-## Supabase Setup
-
-**Project URL:** `https://senchgucwjsitagylknx.supabase.co`  
-**Anon key:** stored inline in both page files — consider moving to `.env.local`:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://senchgucwjsitagylknx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
-```
-
-Then initialize the client from a shared utility:
-
-```ts
-// lib/supabase.ts
-import { createClient } from "@supabase/supabase-js";
-
-export const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-```
-
-### RLS Policies needed
-
-| Table | Operation | Policy |
-|---|---|---|
-| `bookings` | INSERT | Allow anon insert |
-| `reviews` | SELECT | Allow anon select where `is_approved = true` |
-| `reviews` | INSERT | Allow anon insert |
-| `reviews` | UPDATE | Allow anon update `likes` column only |
-
----
-
-## Storage
 
 Service images are hosted in the `salon-images` Supabase Storage bucket and referenced by direct public URL in `SERVICES_MENU`.
 
