@@ -5,7 +5,12 @@ A full-stack beauty salon web application built with **Next.js** and **Supabase*
 > Built for a real salon in Tbilisi, Georgia 📍
  
 ---
- 
+ ![Screenshot](./screenshot/heroNav.png)
+ ![Screenshot](./screenshot/bookings1.png)
+ ![Screenshot](./screenshot/bookings2.png)
+ ![Screenshot](./screenshot/bookings3.png)
+ ![Screenshot](./screenshot/reviews.png)
+ ![Screenshot](./screenshot/service.png)
 ## ✨ What It Does
  
 ### Browse Treatments (`/services`)
