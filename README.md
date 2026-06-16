@@ -1,36 +1,138 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Salon Booking App — README
 
-## Getting Started
+A Next.js + Supabase frontend for a beauty salon in Tbilisi. Three main pages handle service browsing, appointment booking, and guest reviews.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Tech Stack
+
+- **Framework:** Next.js (App Router, `"use client"`)
+- **Database & Storage:** Supabase (PostgreSQL + Storage buckets)
+- **Styling:** Tailwind CSS with custom design tokens (`forest`, `cream`, `off-white`, `near-black`, `deep-green`)
+- **Language:** TypeScript
+
+---
+
+## Pages
+
+### `/services` — Treatment Menu (`AdvancedServicesPage`)
+Browse all services with live filtering.
+
+**Features:**
+- Tab switcher by category (Skincare, Spa, Nails, Hair)
+- Text search across name + description
+- Concern/benefit filter dropdown (glow, hydration, exfoliation, tension, grooming)
+- Max duration slider (30–90 min)
+- Images pulled from Supabase Storage
+- "Request Slot" links through to `/book`
+
+**Data source:** Static `SERVICES_MENU` object (no DB fetch needed).
+
+---
+
+### `/book` — Book Appointment (`BookAppointment`)
+Three-step booking wizard.
+
+**Step 1 — Treatment:** Select a service from the grid.  
+**Step 2 — Date & Time:** Date picker + time slot buttons (10:00–19:00).  
+**Step 3 — Confirmation:** Client details form (name, email, phone, contact preference, notes).
+
+**On submit:** Inserts a row into the `bookings` table with `status: "pending"`.
+
+**Supabase table: `bookings`**
+| Column | Type |
+|---|---|
+| `client_name` | text |
+| `client_email` | text |
+| `treatment` | text |
+| `booking_date` | date |
+| `booking_time` | text |
+| `status` | text (`"pending"`) |
+
+---
+
+### `/standards` — Standards & Reviews (`StandardsAndReviews`)
+Editorial page showing brand pillars + guest reviews with a submission form.
+
+**Features:**
+- Fetches only `is_approved = true` reviews on mount
+- Like button increments `likes` column live
+- Review form submits to `reviews` table (inserted without `is_approved`, pending admin moderation)
+- 5-second success confirmation banner on submit
+
+**Supabase table: `reviews`**
+| Column | Type |
+|---|---|
+| `author` | text |
+| `treatment` | text |
+| `rating` | int (1–5) |
+| `text` | text |
+| `likes` | int |
+| `is_approved` | bool (admin-set) |
+| `created_at` | timestamp |
+
+---
+
+## Supabase Setup
+
+**Project URL:** `https://senchgucwjsitagylknx.supabase.co`  
+**Anon key:** stored inline in both page files — consider moving to `.env.local`:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://senchgucwjsitagylknx.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Then initialize the client from a shared utility:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```ts
+// lib/supabase.ts
+import { createClient } from "@supabase/supabase-js";
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+export const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
+```
 
-## Learn More
+### RLS Policies needed
 
-To learn more about Next.js, take a look at the following resources:
+| Table | Operation | Policy |
+|---|---|---|
+| `bookings` | INSERT | Allow anon insert |
+| `reviews` | SELECT | Allow anon select where `is_approved = true` |
+| `reviews` | INSERT | Allow anon insert |
+| `reviews` | UPDATE | Allow anon update `likes` column only |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Storage
 
-## Deploy on Vercel
+Service images are hosted in the `salon-images` Supabase Storage bucket and referenced by direct public URL in `SERVICES_MENU`.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Project Structure
+
+```
+app/
+├── book/
+│   └── page.tsx          # BookAppointment — 3-step wizard
+├── services/
+│   └── page.tsx          # AdvancedServicesPage — treatment menu
+├── standards/
+│   └── page.tsx          # StandardsAndReviews — pillars + reviews
+└── components/
+    └── Navbar.tsx
+```
+
+---
+
+## Local Dev
+
+```bash
+npm install
+npm run dev
+```
+
+App runs at `http://localhost:3000`.
